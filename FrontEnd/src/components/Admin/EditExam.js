@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { examApi } from '../../services/api';
-import '../styles/EditExam.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { examApi } from "../../services/api";
+import "../styles/EditExam.css";
 
 const EditExam = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [exam, setExam] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    duration: '',
-    totalMarks: '',
-    passingMarks: '',
-    startDate: '',
-    endDate: '',
+    title: "",
+    description: "",
+    duration: "",
+    totalMarks: "",
+    passingMarks: "",
+    startDate: "",
+    endDate: "",
     questions: [],
   });
   const [editingQuestionIndex, setEditingQuestionIndex] = useState(null);
   const [newQuestion, setNewQuestion] = useState({
-    questionText: '',
-    questionType: 'mcq',
-    marks: '',
-    options: ['', '', '', ''],
-    correctAnswer: '',
+    questionText: "",
+    questionType: "mcq",
+    marks: "",
+    options: ["", "", "", ""],
+    correctAnswer: "",
   });
 
   useEffect(() => {
@@ -43,13 +43,13 @@ const EditExam = () => {
         duration: examData.duration,
         totalMarks: examData.totalMarks,
         passingMarks: examData.passingMarks,
-        startDate: examData.startDate ? examData.startDate.split('T')[0] : '',
-        endDate: examData.endDate ? examData.endDate.split('T')[0] : '',
+        startDate: examData.startDate ? examData.startDate.split("T")[0] : "",
+        endDate: examData.endDate ? examData.endDate.split("T")[0] : "",
         questions: examData.questions || [],
       });
-      setError('');
+      setError("");
     } catch (err) {
-      setError('Failed to fetch exam');
+      setError("Failed to fetch exam");
       console.error(err);
     } finally {
       setLoading(false);
@@ -73,17 +73,17 @@ const EditExam = () => {
 
   const addQuestion = () => {
     if (!newQuestion.questionText || !newQuestion.marks) {
-      alert('Please fill in question text and marks');
+      alert("Please fill in question text and marks");
       return;
     }
 
-    if (newQuestion.questionType === 'mcq') {
-      if (newQuestion.options.some(opt => !opt)) {
-        alert('Please fill in all MCQ options');
+    if (newQuestion.questionType === "mcq") {
+      if (newQuestion.options.some((opt) => !opt)) {
+        alert("Please fill in all MCQ options");
         return;
       }
       if (!newQuestion.correctAnswer) {
-        alert('Please select correct answer for MCQ');
+        alert("Please select correct answer for MCQ");
         return;
       }
     }
@@ -104,11 +104,11 @@ const EditExam = () => {
 
     // Reset form
     setNewQuestion({
-      questionText: '',
-      questionType: 'mcq',
-      marks: '',
-      options: ['', '', '', ''],
-      correctAnswer: '',
+      questionText: "",
+      questionType: "mcq",
+      marks: "",
+      options: ["", "", "", ""],
+      correctAnswer: "",
     });
   };
 
@@ -126,46 +126,75 @@ const EditExam = () => {
     e.preventDefault();
     try {
       await examApi.updateExam(id, formData);
-      alert('Exam updated successfully!');
-      navigate('/admin');
+      alert("Exam updated successfully!");
+      navigate("/admin");
     } catch (err) {
-      setError('Failed to update exam');
+      setError("Failed to update exam");
       console.error(err);
     }
   };
 
   const handlePublishToggle = async () => {
     try {
-      await examApi.publishExam(id);
-      // Refresh exam data
-      fetchExam();
-      alert(`Exam ${exam.isPublished ? 'unpublished' : 'published'} successfully!`);
+      const response = await examApi.publishExam(id);
+
+      setExam(response.data.exam); // ✅ update state immediately
+
+      alert(response.data.message); // ✅ accurate message
     } catch (err) {
-      setError('Failed to update exam publish status');
+      setError("Failed to update exam publish status");
       console.error(err);
     }
   };
 
-  if (loading) return <div className="edit-exam-container"><p>Loading exam...</p></div>;
-  if (error) return <div className="edit-exam-container"><p className="error-message">{error}</p></div>;
+  // const handlePublishToggle = async () => {
+  //   try {
+  //     await examApi.publishExam(id);
+  //     // Refresh exam data
+  //     fetchExam();
+  //     alert(`Exam ${exam.isPublished ? 'unpublished' : 'published'} successfully!`);
+  //   } catch (err) {
+  //     setError('Failed to update exam publish status');
+  //     console.error(err);
+  //   }
+  // };
+
+  if (loading)
+    return (
+      <div className="edit-exam-container">
+        <p>Loading exam...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="edit-exam-container">
+        <p className="error-message">{error}</p>
+      </div>
+    );
 
   return (
     <div className="edit-exam-container">
-      <button onClick={() => navigate('/admin')} className="btn-back">← Back to Dashboard</button>
-      
+      <button onClick={() => navigate("/admin")} className="btn-back">
+        ← Back to Dashboard
+      </button>
+
       <form onSubmit={handleUpdateExam} className="edit-exam-form">
         <div className="form-header">
           <h2>Edit Exam: {formData.title}</h2>
           <div className="header-actions">
-            <span className={`status-badge ${exam.isPublished ? 'published' : 'draft'}`}>
-              {exam.isPublished ? '✅ Published' : '⏳ Draft'}
+            <span
+              className={`status-badge ${exam.isPublished ? "published" : "draft"}`}
+            >
+              {exam.isPublished ? "✅ Published" : "⏳ Draft"}
             </span>
             <button
               type="button"
               onClick={handlePublishToggle}
-              className={exam.isPublished ? 'btn-unpublish' : 'btn-publish-toggle'}
+              className={
+                exam.isPublished ? "btn-unpublish" : "btn-publish-toggle"
+              }
             >
-              {exam.isPublished ? 'Unpublish Exam' : 'Publish Exam'}
+              {exam.isPublished ? "Unpublish Exam" : "Publish Exam"}
             </button>
           </div>
         </div>
@@ -251,13 +280,17 @@ const EditExam = () => {
           <h3>Questions ({formData.questions.length})</h3>
 
           <div className="add-question-form">
-            <h4>{editingQuestionIndex !== null ? 'Edit Question' : 'Add Question'}</h4>
+            <h4>
+              {editingQuestionIndex !== null ? "Edit Question" : "Add Question"}
+            </h4>
 
             <div className="form-group">
               <label>Question Text</label>
               <textarea
                 value={newQuestion.questionText}
-                onChange={(e) => handleQuestionChange('questionText', e.target.value)}
+                onChange={(e) =>
+                  handleQuestionChange("questionText", e.target.value)
+                }
                 placeholder="Enter question text"
               />
             </div>
@@ -267,7 +300,9 @@ const EditExam = () => {
                 <label>Question Type</label>
                 <select
                   value={newQuestion.questionType}
-                  onChange={(e) => handleQuestionChange('questionType', e.target.value)}
+                  onChange={(e) =>
+                    handleQuestionChange("questionType", e.target.value)
+                  }
                 >
                   <option value="mcq">Multiple Choice</option>
                   <option value="shortAnswer">Short Answer</option>
@@ -280,13 +315,15 @@ const EditExam = () => {
                 <input
                   type="number"
                   value={newQuestion.marks}
-                  onChange={(e) => handleQuestionChange('marks', e.target.value)}
+                  onChange={(e) =>
+                    handleQuestionChange("marks", e.target.value)
+                  }
                   placeholder="Enter marks"
                 />
               </div>
             </div>
 
-            {newQuestion.questionType === 'mcq' && (
+            {newQuestion.questionType === "mcq" && (
               <>
                 <div className="form-group">
                   <label>Options</label>
@@ -306,12 +343,19 @@ const EditExam = () => {
                   <label>Correct Answer</label>
                   <select
                     value={newQuestion.correctAnswer}
-                    onChange={(e) => handleQuestionChange('correctAnswer', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange("correctAnswer", e.target.value)
+                    }
                   >
                     <option value="">Select correct answer</option>
-                    {newQuestion.options.map((option, idx) => (
-                      option && <option key={idx} value={option}>{option}</option>
-                    ))}
+                    {newQuestion.options.map(
+                      (option, idx) =>
+                        option && (
+                          <option key={idx} value={option}>
+                            {option}
+                          </option>
+                        ),
+                    )}
                   </select>
                 </div>
               </>
@@ -322,7 +366,9 @@ const EditExam = () => {
               onClick={addQuestion}
               className="btn-add-question"
             >
-              {editingQuestionIndex !== null ? 'Update Question' : 'Add Question'}
+              {editingQuestionIndex !== null
+                ? "Update Question"
+                : "Add Question"}
             </button>
 
             {editingQuestionIndex !== null && (
@@ -331,11 +377,11 @@ const EditExam = () => {
                 onClick={() => {
                   setEditingQuestionIndex(null);
                   setNewQuestion({
-                    questionText: '',
-                    questionType: 'mcq',
-                    marks: '',
-                    options: ['', '', '', ''],
-                    correctAnswer: '',
+                    questionText: "",
+                    questionType: "mcq",
+                    marks: "",
+                    options: ["", "", "", ""],
+                    correctAnswer: "",
                   });
                 }}
                 className="btn-cancel-edit"
@@ -349,24 +395,39 @@ const EditExam = () => {
             {formData.questions.map((q, idx) => (
               <div key={idx} className="question-item">
                 <div className="question-header">
-                  <h5>Question {idx + 1} - {q.marks} marks</h5>
+                  <h5>
+                    Question {idx + 1} - {q.marks} marks
+                  </h5>
                   <span className="question-type">{q.questionType}</span>
                 </div>
                 <p className="question-text">{q.questionText}</p>
-                {q.questionType === 'mcq' && (
+                {q.questionType === "mcq" && (
                   <div className="mcq-options">
                     {q.options.map((opt, i) => (
-                      <p key={i} className={q.correctAnswer === opt ? 'correct-option' : ''}>
-                        {i + 1}. {opt} {q.correctAnswer === opt ? '✓' : ''}
+                      <p
+                        key={i}
+                        className={
+                          q.correctAnswer === opt ? "correct-option" : ""
+                        }
+                      >
+                        {i + 1}. {opt} {q.correctAnswer === opt ? "✓" : ""}
                       </p>
                     ))}
                   </div>
                 )}
                 <div className="question-actions">
-                  <button type="button" onClick={() => editQuestion(idx)} className="btn-edit-question">
+                  <button
+                    type="button"
+                    onClick={() => editQuestion(idx)}
+                    className="btn-edit-question"
+                  >
                     Edit
                   </button>
-                  <button type="button" onClick={() => deleteQuestion(idx)} className="btn-delete-question">
+                  <button
+                    type="button"
+                    onClick={() => deleteQuestion(idx)}
+                    className="btn-delete-question"
+                  >
                     Delete
                   </button>
                 </div>
@@ -376,8 +437,16 @@ const EditExam = () => {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn-save">Save Exam</button>
-          <button type="button" onClick={() => navigate('/admin')} className="btn-cancel">Cancel</button>
+          <button type="submit" className="btn-save">
+            Save Exam
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/admin")}
+            className="btn-cancel"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { examApi } from '../../services/api';
-import '../styles/Dashboard.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { examApi } from "../../services/api";
+import "../styles/Dashboard.css";
 
 const UserDashboard = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchExams();
@@ -16,21 +16,26 @@ const UserDashboard = () => {
     try {
       const response = await examApi.getAllExams();
       setExams(response.data.exams);
-      setError('');
+      setError("");
     } catch (err) {
-      setError('Failed to fetch exams');
+      setError("Failed to fetch exams");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="dashboard-container"><p>Loading exams...</p></div>;
+  if (loading)
+    return (
+      <div className="dashboard-container">
+        <p>Loading exams...</p>
+      </div>
+    );
 
   return (
     <div className="dashboard-container">
       <h1>Available Exams</h1>
-      
+
       {error && <div className="error-message">{error}</div>}
 
       {exams.length === 0 ? (
@@ -56,9 +61,19 @@ const UserDashboard = () => {
                   End: {new Date(exam.endDate).toLocaleDateString()}
                 </p>
               )}
-              <Link to={`/exam/${exam._id}`} className="btn-start">
+              {/* <Link to={`/exam/${exam._id}`} className="btn-start">
                 Start Exam
-              </Link>
+              </Link> */}
+
+              {exam.hasAttempted ? (
+                <button className="btn-disabled" disabled>
+                  Already Attempted
+                </button>
+              ) : (
+                <Link to={`/exam/${exam._id}`} className="btn-start">
+                  Start Exam
+                </Link>
+              )}
             </div>
           ))}
         </div>

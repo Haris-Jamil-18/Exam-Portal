@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { examApi } from '../../services/api';
-import '../styles/ExamInterface.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { examApi } from "../../services/api";
+import "../styles/ExamInterface.css";
 
 const ExamInterface = () => {
   const { id } = useParams();
@@ -12,7 +12,7 @@ const ExamInterface = () => {
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [examStarted, setExamStarted] = useState(false);
 
   useEffect(() => {
@@ -34,29 +34,74 @@ const ExamInterface = () => {
     try {
       const response = await examApi.getExamById(id);
       setExam(response.data.exam);
-      setError('');
+      setError("");
     } catch (err) {
-      setError('Failed to fetch exam');
+      setError("Failed to fetch exam");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  // const startExam = async () => {
+  //   try {
+  //     const response = await examApi.startExam(id);
+  //     setSubmission(response.data.submission);
+  //     // setTimeRemaining(exam.duration * 60);
+
+  //     setExamStarted(true);
+  //     // Initialize answers
+  //     const initialAnswers = {};
+  //     exam.questions.forEach((q, idx) => {
+  //       initialAnswers[idx] = "";
+  //     });
+  //     setAnswers(initialAnswers);
+  //   } catch (err) {
+  //     setError("Failed to start exam");
+  //     console.error(err);
+  //   }
+  // };
+
   const startExam = async () => {
     try {
       const response = await examApi.startExam(id);
-      setSubmission(response.data.submission);
-      setTimeRemaining(exam.duration * 60);
+
+      const submissionData = response.data.submission;
+      const examData = response.data.exam;
+
+      // set submission from backend
+      setSubmission(submissionData);
+
+      // calculate remaining time using backend startTime
+      const elapsed = Math.floor(
+        (Date.now() - new Date(submissionData.startTime)) / 1000,
+      );
+
+      const remainingTime = examData.duration * 60 - elapsed;
+
+      setTimeRemaining(Math.max(remainingTime, 0)); // safety
       setExamStarted(true);
-      // Initialize answers
+
+      // initialize answers (use examData, not state)
       const initialAnswers = {};
-      exam.questions.forEach((q, idx) => {
-        initialAnswers[idx] = '';
+      examData.questions.forEach((q, idx) => {
+        initialAnswers[idx] = "";
       });
       setAnswers(initialAnswers);
+      // } catch (err) {
+      //   setError("Failed to start exam");
+      //   console.error(err);
+      // }
     } catch (err) {
-      setError('Failed to start exam');
+      const msg = err.response?.data?.message;
+
+      if (msg === "You have already attempted this exam") {
+        alert("You have already attempted this exam.");
+        navigate("/results"); // or dashboard
+      } else {
+        setError("Failed to start exam");
+      }
+
       console.error(err);
     }
   };
@@ -75,7 +120,7 @@ const ExamInterface = () => {
       // Convert answers object to array format expected by backend
       const answersArray = exam.questions.map((question, idx) => ({
         questionId: question._id,
-        userAnswer: answers[idx] || '',
+        userAnswer: answers[idx] || "",
       }));
 
       const submissionData = {
@@ -83,10 +128,10 @@ const ExamInterface = () => {
         timeSpent: exam.duration * 60 - timeRemaining,
       };
       await examApi.submitExam(submission._id, submissionData);
-      alert('Exam submitted successfully!');
-      navigate('/results');
+      alert("Exam submitted successfully!");
+      navigate("/results");
     } catch (err) {
-      setError('Failed to submit exam');
+      setError("Failed to submit exam");
       console.error(err);
     }
   };
@@ -95,12 +140,27 @@ const ExamInterface = () => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  if (loading) return <div className="exam-container"><p>Loading exam...</p></div>;
-  if (error) return <div className="exam-container"><p className="error-message">{error}</p></div>;
-  if (!exam) return <div className="exam-container"><p>Exam not found</p></div>;
+  if (loading)
+    return (
+      <div className="exam-container">
+        <p>Loading exam...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="exam-container">
+        <p className="error-message">{error}</p>
+      </div>
+    );
+  if (!exam)
+    return (
+      <div className="exam-container">
+        <p>Exam not found</p>
+      </div>
+    );
 
   if (!examStarted) {
     return (
@@ -130,21 +190,27 @@ const ExamInterface = () => {
       <div className="exam-header">
         <h2>{exam.title}</h2>
         <div className="timer">
-          ⏱️ Time Remaining: <span className="time-value">{formatTime(timeRemaining)}</span>
+          ⏱️ Time Remaining:{" "}
+          <span className="time-value">{formatTime(timeRemaining)}</span>
         </div>
       </div>
 
       <div className="exam-body">
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+          <div
+            className="progress-fill"
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
 
         <div className="question-section">
-          <h3>Question {currentQuestionIndex + 1} of {exam.questions.length}</h3>
+          <h3>
+            Question {currentQuestionIndex + 1} of {exam.questions.length}
+          </h3>
           <p className="question-text">{currentQuestion.questionText}</p>
           <p className="question-marks">Marks: {currentQuestion.marks}</p>
 
-          {currentQuestion.questionType === 'mcq' && (
+          {currentQuestion.questionType === "mcq" && (
             <div className="options">
               {currentQuestion.options.map((option, idx) => (
                 <label key={idx} className="option">
@@ -161,10 +227,11 @@ const ExamInterface = () => {
             </div>
           )}
 
-          {(currentQuestion.questionType === 'shortAnswer' || currentQuestion.questionType === 'essay') && (
+          {(currentQuestion.questionType === "shortAnswer" ||
+            currentQuestion.questionType === "essay") && (
             <textarea
               className="answer-textarea"
-              value={answers[currentQuestionIndex] || ''}
+              value={answers[currentQuestionIndex] || ""}
               onChange={(e) => handleAnswerChange(e.target.value)}
               placeholder="Write your answer here..."
               rows={6}
@@ -174,7 +241,9 @@ const ExamInterface = () => {
 
         <div className="navigation-buttons">
           <button
-            onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
+            onClick={() =>
+              setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))
+            }
             disabled={currentQuestionIndex === 0}
             className="btn-nav"
           >
@@ -186,7 +255,7 @@ const ExamInterface = () => {
               <button
                 key={idx}
                 onClick={() => setCurrentQuestionIndex(idx)}
-                className={`question-btn ${currentQuestionIndex === idx ? 'active' : ''} ${answers[idx] ? 'answered' : ''}`}
+                className={`question-btn ${currentQuestionIndex === idx ? "active" : ""} ${answers[idx] ? "answered" : ""}`}
               >
                 {idx + 1}
               </button>
@@ -194,7 +263,11 @@ const ExamInterface = () => {
           </div>
 
           <button
-            onClick={() => setCurrentQuestionIndex(Math.min(exam.questions.length - 1, currentQuestionIndex + 1))}
+            onClick={() =>
+              setCurrentQuestionIndex(
+                Math.min(exam.questions.length - 1, currentQuestionIndex + 1),
+              )
+            }
             disabled={currentQuestionIndex === exam.questions.length - 1}
             className="btn-nav"
           >

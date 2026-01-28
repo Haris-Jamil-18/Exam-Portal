@@ -36,6 +36,7 @@ export const examApi = {
   publishExam: (id) => apiClient.put(`/exam/${id}/publish`, {}),
   startExam: (id) => apiClient.post(`/exam/${id}/start`, {}),
   submitExam: (submissionId, data) => apiClient.post(`/exam/submission/${submissionId}`, data),
+  getExamResults: (id) => apiClient.get(`/exam/${id}/results`),
 };
 
 // Result API

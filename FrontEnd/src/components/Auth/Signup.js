@@ -26,6 +26,7 @@ const Signup = ({ isAdmin = false }) => {
 
     try {
       await signup(name, email, password, confirmPassword, isAdmin);
+      
       navigate(isAdmin ? '/admin/dashboard' : '/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed');

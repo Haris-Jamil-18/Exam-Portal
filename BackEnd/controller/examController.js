@@ -7,7 +7,17 @@ const Result = require("../model/result");
 // @access  Private/Admin
 exports.createExam = async (req, res) => {
   try {
-    const { title, description, duration, totalMarks, passingMarks, questions, startDate, endDate, isPublished } = req.body;
+    const {
+      title,
+      description,
+      duration,
+      totalMarks,
+      passingMarks,
+      questions,
+      startDate,
+      endDate,
+      isPublished,
+    } = req.body;
 
     // Validation
     if (!title || !duration || !totalMarks || !passingMarks) {
@@ -48,8 +58,44 @@ exports.createExam = async (req, res) => {
 // @access  Public
 exports.getAllExams = async (req, res) => {
   try {
-    const exams = await Exam.find({ isPublished: true }).populate("createdBy", "email");
+    let exams;
 
+    // 👨‍💼 Admin: see all exams
+    if (req.user.role === "admin") {
+      exams = await Exam.find().populate("createdBy", "email");
+    }
+    // 👩‍🎓 User: see only published exams
+    else {
+      exams = await Exam.find({ isPublished: true }).populate(
+        "createdBy",
+        "email",
+      );
+    }
+
+    // 👩‍🎓 Add hasAttempted ONLY for users
+    if (req.user.role === "user") {
+      const examsWithAttemptStatus = await Promise.all(
+        exams.map(async (exam) => {
+          const attempted = await Result.exists({
+            examId: exam._id,
+            userId: req.user.id,
+          });
+
+          return {
+            ...exam.toObject(),
+            hasAttempted: !!attempted,
+          };
+        }),
+      );
+
+      return res.status(200).json({
+        success: true,
+        count: examsWithAttemptStatus.length,
+        exams: examsWithAttemptStatus,
+      });
+    }
+
+    // 👨‍💼 Admin response (no hasAttempted)
     res.status(200).json({
       success: true,
       count: exams.length,
@@ -62,6 +108,26 @@ exports.getAllExams = async (req, res) => {
     });
   }
 };
+
+// exports.getAllExams = async (req, res) => {
+//   try {
+//     const exams = await Exam.find({ isPublished: true }).populate(
+//       "createdBy",
+//       "email",
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       count: exams.length,
+//       exams,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 // @desc    Get single exam
 // @route   GET /api/exam/:id
@@ -104,7 +170,10 @@ exports.updateExam = async (req, res) => {
     }
 
     // Check if user is the creator
-    if (exam.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (
+      exam.createdBy.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to update this exam",
@@ -144,7 +213,10 @@ exports.deleteExam = async (req, res) => {
     }
 
     // Check if user is the creator or admin
-    if (exam.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (
+      exam.createdBy.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to delete this exam",
@@ -179,15 +251,13 @@ exports.publishExam = async (req, res) => {
       });
     }
 
-    exam = await Exam.findByIdAndUpdate(
-      req.params.id,
-      { isPublished: true },
-      { new: true }
-    );
+    // ✅ TOGGLE publish / unpublish
+    exam.isPublished = !exam.isPublished;
+    await exam.save();
 
     res.status(200).json({
       success: true,
-      message: "Exam published successfully",
+      message: `Exam ${exam.isPublished ? "published" : "unpublished"} successfully`,
       exam,
     });
   } catch (error) {
@@ -197,6 +267,36 @@ exports.publishExam = async (req, res) => {
     });
   }
 };
+
+// exports.publishExam = async (req, res) => {
+//   try {
+//     let exam = await Exam.findById(req.params.id);
+
+//     if (!exam) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Exam not found",
+//       });
+//     }
+
+//     exam = await Exam.findByIdAndUpdate(
+//       req.params.id,
+//       { isPublished: true },
+//       { new: true },
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Exam published successfully",
+//       exam,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 // @desc    Start Exam (User)
 // @route   POST /api/exam/:id/start
@@ -220,6 +320,16 @@ exports.startExam = async (req, res) => {
       });
     }
 
+    // IF ALREADY ATTEMPTED, PREVENT MULTIPLE ATTEMPTS
+    const existingResult = await Result.findOne({
+      examId: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (existingResult) {
+      return res.status(400).json({ message: "Exam already attempted" });
+    }
+
     // Check if user already has an active submission
     let submission = await Submission.findOne({
       examId: req.params.id,
@@ -227,11 +337,26 @@ exports.startExam = async (req, res) => {
       status: "in-progress",
     });
 
+    // if (submission) {
+    //   return res.status(200).json({
+    //     success: true,
+    //     message: "Continuing existing submission",
+    //     submission,
+    //   });
+    // }
+
     if (submission) {
       return res.status(200).json({
         success: true,
         message: "Continuing existing submission",
         submission,
+        exam: {
+          id: exam._id,
+          title: exam.title,
+          duration: exam.duration,
+          totalMarks: exam.totalMarks,
+          questions: exam.questions,
+        },
       });
     }
 
@@ -243,6 +368,15 @@ exports.startExam = async (req, res) => {
       status: "in-progress",
     });
 
+    //PREVENT LEAKING OF CORRECT OPTIONS
+    const safeQuestions = exam.questions.map((q) => ({
+      _id: q._id,
+      questionText: q.questionText,
+      questionType: q.questionType,
+      marks: q.marks,
+      options: q.options,
+    }));
+
     res.status(201).json({
       success: true,
       message: "Exam started successfully",
@@ -252,7 +386,7 @@ exports.startExam = async (req, res) => {
         title: exam.title,
         duration: exam.duration,
         totalMarks: exam.totalMarks,
-        questions: exam.questions,
+        questions: safeQuestions,
       },
     });
   } catch (error) {
@@ -295,18 +429,22 @@ exports.submitExam = async (req, res) => {
     const timeTaken = now - startTime;
     const allowedTime = exam.duration * 60 * 1000;
 
-    let autoSubmitted = false;
-      if (timeTaken > allowedTime) {
-    autoSubmitted = true;
-  }
-
+    //let autoSubmitted = false;
+    //     if (timeTaken > allowedTime) {
+    //   autoSubmitted = true;
+    // }
+    if (timeTaken > allowedTime) {
+      submission.status = "submitted";
+    }
 
     // Calculate marks
     let totalMarksObtained = 0;
     let answersWithMarks = [];
 
     answers.forEach((answer) => {
-      const question = exam.questions.find(q => q._id.toString() === answer.questionId);
+      const question = exam.questions.find(
+        (q) => q._id.toString() === answer.questionId,
+      );
       if (question) {
         let isCorrect = false;
         let marksObtained = 0;
@@ -384,7 +522,10 @@ exports.getResult = async (req, res) => {
     }
 
     // Check authorization
-    if (result.userId._id.toString() !== req.user.id && req.user.role !== "admin") {
+    if (
+      result.userId._id.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to view this result",
@@ -409,6 +550,31 @@ exports.getResult = async (req, res) => {
 exports.getUserResults = async (req, res) => {
   try {
     const results = await Result.find({ userId: req.user.id })
+      .populate("examId", "title totalMarks passingMarks")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      results,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Get all results of an exam (Admin)
+// @route   GET /api/exam/:id/results
+// @access  Private/Admin
+exports.getExamResultsForAdmin = async (req, res) => {
+  try {
+    const examId = req.params.id;
+
+    const results = await Result.find({ examId })
+      .populate("userId", "name email")
       .populate("examId", "title totalMarks passingMarks")
       .sort({ createdAt: -1 });
 

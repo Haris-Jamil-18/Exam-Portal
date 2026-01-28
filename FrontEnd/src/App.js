@@ -14,6 +14,7 @@ import DashboardPage from './pages/DashboardPage';
 import ExamPage from './pages/ExamPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import ResultsPage from './pages/ResultsPage';
+import AdminExamResults from './components/Admin/AdminExamResults';
 
 // Components
 import EditExam from './components/Admin/EditExam';
@@ -39,7 +40,8 @@ function App() {
           <Route path="/admin/dashboard" element={<PrivateRoute requiredRole="admin"><AdminDashboardPage /></PrivateRoute>} />
           <Route path="/admin" element={<PrivateRoute requiredRole="admin"><AdminDashboardPage /></PrivateRoute>} />
           <Route path="/admin/exam/:id" element={<PrivateRoute requiredRole="admin"><EditExam /></PrivateRoute>} />
-          
+          <Route path="/admin/exam/:id/results" element={<AdminExamResults />} />
+
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AuthProvider>

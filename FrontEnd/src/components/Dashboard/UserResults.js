@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { resultApi } from '../../services/api';
-import '../styles/Results.css';
+import React, { useState, useEffect } from "react";
+import { resultApi } from "../../services/api";
+import "../styles/Results.css";
 
 const UserResults = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchResults();
@@ -15,16 +15,21 @@ const UserResults = () => {
     try {
       const response = await resultApi.getUserResults();
       setResults(response.data.results);
-      setError('');
+      setError("");
     } catch (err) {
-      setError('Failed to fetch results');
+      setError("Failed to fetch results");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="results-container"><p>Loading results...</p></div>;
+  if (loading)
+    return (
+      <div className="results-container">
+        <p>Loading results...</p>
+      </div>
+    );
 
   return (
     <div className="results-container">
@@ -49,16 +54,20 @@ const UserResults = () => {
             </thead>
             <tbody>
               {results.map((result) => {
-                const percentage = (result.marksObtained / result.totalMarks) * 100;
-                const isPassed = result.marksObtained >= result.passingMarks;
+                const percentage =
+                  (result.marksObtained / result.totalMarks) * 100;
+                // const isPassed = result.marksObtained >= result.passingMarks;
+                const isPassed = result.isPassed;
                 return (
                   <tr key={result._id}>
-                    <td>{result.examTitle}</td>
+                    {/* <td>{result.examTitle}</td> */}
+                    <td>{result.examId?.title}</td>
                     <td>{result.marksObtained}</td>
-                    <td>{result.totalMarks}</td>
+                    <td>{result.examId?.totalMarks}</td>
+                    {/* <td>{result.totalMarks}</td> */}
                     <td>{percentage.toFixed(2)}%</td>
-                    <td className={isPassed ? 'passed' : 'failed'}>
-                      {isPassed ? '✅ Passed' : '❌ Failed'}
+                    <td className={isPassed ? "passed" : "failed"}>
+                      {isPassed ? "✅ Passed" : "❌ Failed"}
                     </td>
                     <td>{new Date(result.createdAt).toLocaleDateString()}</td>
                   </tr>

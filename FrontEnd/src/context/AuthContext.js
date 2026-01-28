@@ -1,19 +1,25 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authApi } from '../services/api';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { authApi } from "../services/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(!!localStorage.getItem('token'));
+  const [isVerifying, setIsVerifying] = useState(
+    !!localStorage.getItem("token"),
+  );
   const [error, setError] = useState(null);
 
   // Check if user is logged in on mount
   useEffect(() => {
-    if (token && !user) {
-      verifyToken();
+    // if (token && !user) {
+    //   verifyToken();
+    // }
+    const role = localStorage.getItem('role');
+    if (token && !user && role === 'user') {
+      verifyToken();   // only users call /auth/me
     } else if (!token) {
       setIsVerifying(false);
     }
@@ -25,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.getMe();
       setUser(response.data.user);
     } catch (err) {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
       setToken(null);
       setUser(null);
     } finally {
@@ -37,18 +43,21 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = isAdmin 
+      const response = isAdmin
         ? await authApi.adminLogin({ email, password })
         : await authApi.userLogin({ email, password });
-      
-      const { token: newToken, user: userData } = response.data;
-      localStorage.setItem('token', newToken);
-      setUser(userData);
+
+      //const { token: newToken, user: userData } = response.data;
+      const { token: newToken, user, admin } = response.data;
+      localStorage.setItem("token", newToken);
+      localStorage.setItem('role', (user || admin).role);
+      setUser(user || admin);
+      //setUser(userData);
       setToken(newToken);
       setIsVerifying(false);
       return response.data;
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Login failed';
+      const errorMsg = err.response?.data?.message || "Login failed";
       setError(errorMsg);
       throw err;
     } finally {
@@ -56,22 +65,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, email, password, confirmPassword, isAdmin = false) => {
+  const signup = async (
+    name,
+    email,
+    password,
+    confirmPassword,
+    isAdmin = false,
+  ) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = isAdmin
-        ? await authApi.adminSignup({ name, email, password, confirmPassword })
+        ? await authApi.adminSignup({ email, password, confirmPassword })
         : await authApi.userSignup({ name, email, password, confirmPassword });
-      
-      const { token: newToken, user: userData } = response.data;
-      localStorage.setItem('token', newToken);
-      setUser(userData);
+
+      //const { token: newToken, user: userData } = response.data;
+      const { token: newToken, user, admin } = response.data;
+      localStorage.setItem("token", newToken);
+      localStorage.setItem('role', (user || admin).role);
+      setUser(user || admin);
+      //setUser(userData);
+      //setUser(user || admin); // adminSignup returns `admin`, userSignup returns `user`
       setToken(newToken);
       setIsVerifying(false);
       return response.data;
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Signup failed';
+      const errorMsg = err.response?.data?.message || "Signup failed";
       setError(errorMsg);
       throw err;
     } finally {
@@ -83,9 +102,10 @@ export const AuthProvider = ({ children }) => {
     try {
       await authApi.logout();
     } catch (err) {
-      console.log('Logout error:', err);
+      console.log("Logout error:", err);
     } finally {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
+      localStorage.removeItem('role'); 
       setToken(null);
       setUser(null);
       setError(null);
@@ -95,17 +115,19 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!token && !!user;
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      token,
-      isLoading,
-      isVerifying,
-      error,
-      isAuthenticated,
-      login,
-      signup,
-      logout,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoading,
+        isVerifying,
+        error,
+        isAuthenticated,
+        login,
+        signup,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -114,7 +136,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
