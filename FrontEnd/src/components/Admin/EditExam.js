@@ -77,32 +77,27 @@ const EditExam = () => {
       return;
     }
 
-    if (newQuestion.questionType === "mcq") {
-      if (newQuestion.options.some((opt) => !opt)) {
-        alert("Please fill in all MCQ options");
-        return;
-      }
-      if (!newQuestion.correctAnswer) {
-        alert("Please select correct answer for MCQ");
-        return;
-      }
+    if (newQuestion.options.some((opt) => !opt)) {
+      alert("Please fill in all MCQ options");
+      return;
+    }
+    if (!newQuestion.correctAnswer) {
+      alert("Please select correct answer for MCQ");
+      return;
     }
 
     if (editingQuestionIndex !== null) {
-      // Update existing question
       const updatedQuestions = [...formData.questions];
       updatedQuestions[editingQuestionIndex] = newQuestion;
       setFormData({ ...formData, questions: updatedQuestions });
       setEditingQuestionIndex(null);
     } else {
-      // Add new question
       setFormData({
         ...formData,
         questions: [...formData.questions, newQuestion],
       });
     }
 
-    // Reset form
     setNewQuestion({
       questionText: "",
       questionType: "mcq",
@@ -137,27 +132,13 @@ const EditExam = () => {
   const handlePublishToggle = async () => {
     try {
       const response = await examApi.publishExam(id);
-
-      setExam(response.data.exam); // ✅ update state immediately
-
-      alert(response.data.message); // ✅ accurate message
+      setExam(response.data.exam);
+      alert(response.data.message);
     } catch (err) {
       setError("Failed to update exam publish status");
       console.error(err);
     }
   };
-
-  // const handlePublishToggle = async () => {
-  //   try {
-  //     await examApi.publishExam(id);
-  //     // Refresh exam data
-  //     fetchExam();
-  //     alert(`Exam ${exam.isPublished ? 'unpublished' : 'published'} successfully!`);
-  //   } catch (err) {
-  //     setError('Failed to update exam publish status');
-  //     console.error(err);
-  //   }
-  // };
 
   if (loading)
     return (
@@ -190,9 +171,7 @@ const EditExam = () => {
             <button
               type="button"
               onClick={handlePublishToggle}
-              className={
-                exam.isPublished ? "btn-unpublish" : "btn-publish-toggle"
-              }
+              className={exam.isPublished ? "btn-unpublish" : "btn-publish-toggle"}
             >
               {exam.isPublished ? "Unpublish Exam" : "Publish Exam"}
             </button>
@@ -201,78 +180,40 @@ const EditExam = () => {
 
         <div className="form-group">
           <label>Exam Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleFormChange}
-            required
-          />
+          <input type="text" name="title" value={formData.title} onChange={handleFormChange} required/>
         </div>
 
         <div className="form-group">
           <label>Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleFormChange}
-          />
+          <textarea name="description" value={formData.description} onChange={handleFormChange}/>
         </div>
 
         <div className="form-row">
           <div className="form-group">
             <label>Duration (minutes)</label>
-            <input
-              type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleFormChange}
-              required
-            />
+            <input type="number" name="duration" value={formData.duration} onChange={handleFormChange} required/>
           </div>
 
           <div className="form-group">
             <label>Total Marks</label>
-            <input
-              type="number"
-              name="totalMarks"
-              value={formData.totalMarks}
-              onChange={handleFormChange}
-              required
-            />
+            <input type="number" name="totalMarks" value={formData.totalMarks} onChange={handleFormChange} required/>
           </div>
 
           <div className="form-group">
             <label>Passing Marks</label>
-            <input
-              type="number"
-              name="passingMarks"
-              value={formData.passingMarks}
-              onChange={handleFormChange}
-              required
-            />
+            <input type="number" name="passingMarks" value={formData.passingMarks} onChange={handleFormChange} required/>
           </div>
         </div>
 
         <div className="form-row">
           <div className="form-group">
             <label>Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleFormChange}
-            />
+            <input type="date" name="startDate" value={formData.startDate} onChange={handleFormChange}/>
           </div>
 
           <div className="form-group">
             <label>End Date</label>
-            <input
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleFormChange}
-            />
+            <input type="date" name="endDate" value={formData.endDate} onChange={handleFormChange}/>
           </div>
         </div>
 
@@ -280,173 +221,56 @@ const EditExam = () => {
           <h3>Questions ({formData.questions.length})</h3>
 
           <div className="add-question-form">
-            <h4>
-              {editingQuestionIndex !== null ? "Edit Question" : "Add Question"}
-            </h4>
+            <h4>{editingQuestionIndex !== null ? "Edit Question" : "Add Question"}</h4>
 
             <div className="form-group">
               <label>Question Text</label>
               <textarea
                 value={newQuestion.questionText}
-                onChange={(e) =>
-                  handleQuestionChange("questionText", e.target.value)
-                }
+                onChange={(e) => handleQuestionChange("questionText", e.target.value)}
                 placeholder="Enter question text"
               />
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label>Question Type</label>
-                <select
-                  value={newQuestion.questionType}
-                  onChange={(e) =>
-                    handleQuestionChange("questionType", e.target.value)
-                  }
-                >
-                  <option value="mcq">Multiple Choice</option>
-                  <option value="shortAnswer">Short Answer</option>
-                  <option value="essay">Essay</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Marks</label>
-                <input
-                  type="number"
-                  value={newQuestion.marks}
-                  onChange={(e) =>
-                    handleQuestionChange("marks", e.target.value)
-                  }
-                  placeholder="Enter marks"
-                />
-              </div>
+            {/* ✅ MCQ ONLY FIX */}
+            <div className="form-group">
+              <label>Question Type</label>
+              <select value="mcq" disabled>
+                <option value="mcq">Multiple Choice</option>
+              </select>
             </div>
 
-            {newQuestion.questionType === "mcq" && (
-              <>
-                <div className="form-group">
-                  <label>Options</label>
-                  {newQuestion.options.map((option, idx) => (
-                    <input
-                      key={idx}
-                      type="text"
-                      value={option}
-                      onChange={(e) => handleOptionChange(idx, e.target.value)}
-                      placeholder={`Option ${idx + 1}`}
-                      className="option-input"
-                    />
-                  ))}
-                </div>
+            <div className="form-group">
+              <label>Marks</label>
+              <input type="number" value={newQuestion.marks} onChange={(e)=>handleQuestionChange("marks", e.target.value)} placeholder="Enter marks"/>
+            </div>
 
-                <div className="form-group">
-                  <label>Correct Answer</label>
-                  <select
-                    value={newQuestion.correctAnswer}
-                    onChange={(e) =>
-                      handleQuestionChange("correctAnswer", e.target.value)
-                    }
-                  >
-                    <option value="">Select correct answer</option>
-                    {newQuestion.options.map(
-                      (option, idx) =>
-                        option && (
-                          <option key={idx} value={option}>
-                            {option}
-                          </option>
-                        ),
-                    )}
-                  </select>
-                </div>
-              </>
-            )}
+            <div className="form-group">
+              <label>Options</label>
+              {newQuestion.options.map((option, idx) => (
+                <input key={idx} type="text" value={option} onChange={(e)=>handleOptionChange(idx,e.target.value)} placeholder={`Option ${idx+1}`} className="option-input"/>
+              ))}
+            </div>
 
-            <button
-              type="button"
-              onClick={addQuestion}
-              className="btn-add-question"
-            >
-              {editingQuestionIndex !== null
-                ? "Update Question"
-                : "Add Question"}
+            <div className="form-group">
+              <label>Correct Answer</label>
+              <select value={newQuestion.correctAnswer} onChange={(e)=>handleQuestionChange("correctAnswer", e.target.value)}>
+                <option value="">Select correct answer</option>
+                {newQuestion.options.map((opt,idx)=> opt && <option key={idx} value={opt}>{opt}</option>)}
+              </select>
+            </div>
+
+            <button type="button" onClick={addQuestion} className="btn-add-question">
+              {editingQuestionIndex !== null ? "Update Question" : "Add Question"}
             </button>
 
-            {editingQuestionIndex !== null && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingQuestionIndex(null);
-                  setNewQuestion({
-                    questionText: "",
-                    questionType: "mcq",
-                    marks: "",
-                    options: ["", "", "", ""],
-                    correctAnswer: "",
-                  });
-                }}
-                className="btn-cancel-edit"
-              >
-                Cancel Edit
-              </button>
-            )}
           </div>
 
-          <div className="questions-list">
-            {formData.questions.map((q, idx) => (
-              <div key={idx} className="question-item">
-                <div className="question-header">
-                  <h5>
-                    Question {idx + 1} - {q.marks} marks
-                  </h5>
-                  <span className="question-type">{q.questionType}</span>
-                </div>
-                <p className="question-text">{q.questionText}</p>
-                {q.questionType === "mcq" && (
-                  <div className="mcq-options">
-                    {q.options.map((opt, i) => (
-                      <p
-                        key={i}
-                        className={
-                          q.correctAnswer === opt ? "correct-option" : ""
-                        }
-                      >
-                        {i + 1}. {opt} {q.correctAnswer === opt ? "✓" : ""}
-                      </p>
-                    ))}
-                  </div>
-                )}
-                <div className="question-actions">
-                  <button
-                    type="button"
-                    onClick={() => editQuestion(idx)}
-                    className="btn-edit-question"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteQuestion(idx)}
-                    className="btn-delete-question"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn-save">
-            Save Exam
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/admin")}
-            className="btn-cancel"
-          >
-            Cancel
-          </button>
+          <button type="submit" className="btn-save">Save Exam</button>
+          <button type="button" onClick={()=>navigate("/admin")} className="btn-cancel">Cancel</button>
         </div>
       </form>
     </div>

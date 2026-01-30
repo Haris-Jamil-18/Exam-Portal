@@ -210,33 +210,21 @@ const ExamInterface = () => {
           <p className="question-text">{currentQuestion.questionText}</p>
           <p className="question-marks">Marks: {currentQuestion.marks}</p>
 
-          {currentQuestion.questionType === "mcq" && (
-            <div className="options">
-              {currentQuestion.options.map((option, idx) => (
-                <label key={idx} className="option">
-                  <input
-                    type="radio"
-                    name="answer"
-                    value={option}
-                    checked={answers[currentQuestionIndex] === option}
-                    onChange={(e) => handleAnswerChange(e.target.value)}
-                  />
-                  {option}
-                </label>
-              ))}
-            </div>
-          )}
+          <div className="options">
+            {currentQuestion.options.map((option, idx) => (
+              <label key={idx} className="option">
+                <input
+                  type="radio"
+                  name="answer"
+                  value={option}
+                  checked={answers[currentQuestionIndex] === option}
+                  onChange={(e) => handleAnswerChange(e.target.value)}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
 
-          {(currentQuestion.questionType === "shortAnswer" ||
-            currentQuestion.questionType === "essay") && (
-            <textarea
-              className="answer-textarea"
-              value={answers[currentQuestionIndex] || ""}
-              onChange={(e) => handleAnswerChange(e.target.value)}
-              placeholder="Write your answer here..."
-              rows={6}
-            />
-          )}
         </div>
 
         <div className="navigation-buttons">
