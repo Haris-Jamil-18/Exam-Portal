@@ -1,0 +1,23 @@
+/* src/styles/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #6366f1;       /* Modern Indigo */
+  --primary-dark: #4f46e5;
+  --secondary: #0ea5e9;      /* Sky Blue */
+  --bg-body: #f1f5f9;       /* Soft Slate Gray */
+  --card-bg: #ffffff;
+  --text-main: #1e293b;     /* Deep Slate */
+  --text-muted: #64748b;
+  --radius: 12px;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.6;
+}

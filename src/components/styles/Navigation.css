@@ -1,0 +1,143 @@
+/* src/components/styles/Navigation.css */
+.navbar {
+  /* Semi-transparent background with a modern blur effect */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* Subtle border and shadow for depth */
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  margin-bottom: 2rem;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  /* Gradient text for a professional "pop" */
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+
+/* Update the container to ensure proper spacing */
+.nav-menu {
+  display: flex;
+  gap: 1rem; /* Space between the two buttons */
+  align-items: center;
+}
+
+/* Base style for navbar buttons */
+.login-primary, .admin-link {
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px; /* Matching the hero button shape */
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Main Login Button (Vibrant) */
+.login-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.login-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Admin Link (Subtle Outline) */
+.admin-link {
+  color: #4f46e5 !important;
+  border: 1px solid #6366f1;
+  background: transparent;
+}
+
+.admin-link:hover {
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.nav-link {
+  color: #475569;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover {
+  background-color: #f1f5f9;
+  color: #6366f1;
+  transform: translateY(-1px);
+}
+/* Navigation Buttons Hover */
+.nav-link {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  transform: translateY(-2px); /* Lifts the button */
+}
+
+.logout-btn {
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.05); /* Slightly grows the button */
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+.user-name {
+  color: #1e293b;
+  font-weight: 600;
+  margin-right: 1rem;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  background: #f8fafc;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.logout-btn {
+  background-color: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.logout-btn:hover {
+  background-color: #ffe4e6;
+  color: #be123c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.1);
+}
