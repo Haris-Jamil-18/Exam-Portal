@@ -232,7 +232,7 @@ const EditExam = () => {
               />
             </div>
 
-            {/* ✅ MCQ ONLY FIX */}
+           
             <div className="form-group">
               <label>Question Type</label>
               <select value="mcq" disabled>
