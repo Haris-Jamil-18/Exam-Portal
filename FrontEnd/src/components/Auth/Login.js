@@ -26,19 +26,21 @@ const Login = ({ isAdmin = false }) => {
     }
   };
 
-  return (
+ return (
     <div className="auth-container">
-      <div className="auth-box">
-        <h2>{isAdmin ? 'Admin Login' : 'User Login'}</h2>
+      {/* Added 'animate-in' class for the reveal effect */}
+      <div className="auth-box animate-in">
+        <h2>{isAdmin ? 'Admin Portal' : 'User Login'}</h2>
         
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email Address</label>
             <input
               type="email"
               value={email}
+              placeholder="name@company.com"
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
@@ -50,28 +52,24 @@ const Login = ({ isAdmin = false }) => {
             <input
               type="password"
               value={password}
+              placeholder="••••••••"
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
             />
           </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? 'Verifying...' : 'Login to Account'}
           </button>
         </form>
 
-        <div className="auth-link">
-          {isAdmin ? (
-            <>
-              Don't have an account? <a href="/admin/signup">Sign up</a>
-            </>
-          ) : (
-            <>
-              Don't have an account? <a href="/signup">Sign up</a>
-            </>
-          )}
-        </div>
+        {/* Removed admin signup link logic here */}
+        {!isAdmin && (
+          <div className="auth-link">
+            New here? <a href="/signup">Create an account</a>
+          </div>
+        )}
       </div>
     </div>
   );
