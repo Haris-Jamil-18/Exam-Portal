@@ -23,46 +23,27 @@ const Navigation = () => {
           </Link>
         )}
 
-        <div className="nav-menu">
-          {isAuthenticated ? (
-            <>
-              <span className="user-name">Welcome, {user?.name}</span>
-              
-              {user?.role === 'admin' && (
-                <Link to="/admin/dashboard" className="nav-link">
-                  Admin Dashboard
-                </Link>
-              )}
-              
-              {user?.role === 'user' && (
-                <>
-                  <Link to="/dashboard" className="nav-link">
-                    Dashboard
-                  </Link>
-                  <Link to="/results" className="nav-link">
-                    Results
-                  </Link>
-                </>
-              )}
-
-              <button onClick={handleLogout} className="nav-link logout-btn">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="nav-link">
-                User Login
-              </Link>
-              <Link to="/signup" className="nav-link">
-                User Signup
-              </Link>
-              <Link to="/admin/login" className="nav-link">
-                Admin Login
-              </Link>
-            </>
-          )}
-        </div>
+        
+<div className="nav-menu">
+  {isAuthenticated ? (
+    <>
+      <span className="user-name">Welcome, {user?.name}</span>
+      {/* ... existing authenticated links ... */}
+      <button onClick={handleLogout} className="nav-link logout-btn">
+        Logout
+      </button>
+    </>
+  ) : (
+    <>
+      <Link to="/login" className="nav-link login-primary">
+        User
+      </Link>
+      <Link to="/admin/login" className="nav-link admin-link">
+        Admin Login
+      </Link>
+    </>
+  )}
+</div>
       </div>
     </nav>
   );

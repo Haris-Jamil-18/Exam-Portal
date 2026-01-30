@@ -22,14 +22,13 @@ const HomePage = () => {
         <h1>Welcome to Exam Portal</h1>
         <p>Take exams online and track your progress</p>
 
+
+        
         <div className="hero-buttons">
-          <Link to="/login" className="btn-primary">
-            User Login
+          <Link to="/signup" className="btn-primary">
+            User
           </Link>
-          <Link to="/signup" className="btn-secondary">
-            User Signup
-          </Link>
-          <Link to="/admin/login" className="btn-primary">
+          <Link to="/admin/login" className="btn-secondary">
             Admin Login
           </Link>
         </div>

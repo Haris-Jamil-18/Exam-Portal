@@ -1,107 +1,176 @@
-.home-page {
-  min-height: calc(100vh - 100px);
-}
 
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 4rem 2rem;
+  background: radial-gradient(at top left, #e0e7ff 0%, #ffffff 100%);
+  padding: 100px 20px;
   text-align: center;
 }
 
-.hero-section h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
 
-.hero-section p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-}
-
-.hero-buttons {
+/* .hero-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;         
   justify-content: center;
   flex-wrap: wrap;
-}
+} */
 
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.3s;
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
 }
 
 .btn-primary {
-  background-color: white;
-  color: #667eea;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn-secondary {
-  background-color: transparent;
+  background: var(--primary);
   color: white;
-  border: 2px solid white;
-}
-
-.btn-secondary:hover {
-  background-color: white;
-  color: #667eea;
-  transform: translateY(-2px);
-}
-
-/* Features Section */
-.features-section {
-  max-width: 1200px;
-  margin: 4rem auto;
-  padding: 2rem;
-}
-
-.features-section h2 {
-  text-align: center;
-  color: #2c3e50;
-  font-size: 2rem;
-  margin-bottom: 3rem;
+  padding: 12px 32px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: -60px; /* Slight overlap into the hero section */
 }
 
 .feature-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.3s;
+  background: var(--card-bg);
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.3s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
 }
 
-.feature-card h3 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+/* Animation for text reveal on page load */
+/* @keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
+.hero-section h1 {
+  animation: fadeInUp 0.8s ease-out forwards;
 }
 
-.feature-card p {
-  color: #7f8c8d;
-  line-height: 1.6;
+.hero-section p {
+  animation: fadeInUp 0.8s ease-out 0.2s forwards; 
+  opacity: 0;
+}
+
+/* .hero-buttons {
+  animation: fadeInUp 0.8s ease-out 0.4s forwards; 
+  opacity: 0;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+} */
+
+
+/* .btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  border: 2px solid #6366f1;
+  color: #6366f1;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-3px);
+  border-color: #4f46e5;
+} */
+
+/* Hero Button Container */
+.hero-buttons {
+  display: flex;
+  gap: 1.5rem; /* Consistent spacing */
+  justify-content: center;
+  margin-top: 2rem;
+  animation: fadeInUp 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+/* Base Styles for both buttons to ensure they "match" */
+.btn-primary, .btn-secondary {
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px; /* Modern rounded Pill shape */
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The "Get Started" Button (Solid & Vibrant) */
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+  filter: brightness(1.1);
+}
+
+/* The "Admin Login" Button (Matching Outline style) */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #4f46e5;
+  border: 2px solid #6366f1;
+  backdrop-filter: blur(5px);
+}
+
+.btn-secondary:hover {
+  background: #6366f1; /* Fills in on hover */
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section h1 {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.hero-section p {
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
+  opacity: 0;
 }

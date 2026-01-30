@@ -6,10 +6,7 @@ import Navigation from './components/Navigation';
 
 // Pages
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import AdminLoginPage from './pages/AdminLoginPage';
-import AdminSignupPage from './pages/AdminSignupPage';
+import AuthPage from './components/Auth/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import ExamPage from './pages/ExamPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -28,11 +25,10 @@ function App() {
         <Navigation />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/signup" element={<AdminSignupPage />} />
-          
+          <Route path="/login" element={<AuthPage initialIsSignup={false} />} />
+          <Route path="/signup" element={<AuthPage initialIsSignup={true} />} />
+          <Route path="/admin/login" element={<AuthPage isAdmin={true} />} />
+
           {/* Protected Routes */}
           <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
           <Route path="/exam/:id" element={<PrivateRoute><ExamPage /></PrivateRoute>} />
