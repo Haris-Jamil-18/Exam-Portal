@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; // Updated path
 import './AuthPage.css'; // Ensure the CSS file is in the same folder
+import axios from "axios";
+
 
 const AuthPage = ({ initialIsSignup = false, isAdmin = false }) => {
   const [isRightPanelActive, setIsRightPanelActive] = useState(initialIsSignup);
@@ -40,11 +42,23 @@ const AuthPage = ({ initialIsSignup = false, isAdmin = false }) => {
     }
   };
 
+   const handleAdminSignUp = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (password !== confirmPassword) return setError('Passwords do not match'); //
+    try {
+      await signup(name, email, password, confirmPassword, isAdmin); //
+      navigate('/admin/dashboard'); //
+    } catch (err) {
+      setError(err.response?.data?.message || 'Signup failed'); //
+    }
+  };
+
   return (
     <div className="auth-wrapper">
       <div className={`container ${isRightPanelActive ? "right-panel-active" : ""}`}>
         <div className="form-container sign-up-container">
-          <form onSubmit={handleSignUp}>
+          <form onSubmit={isAdmin? handleAdminSignUp:handleSignUp}>
             <h1>Create Account</h1>
             {error && <p style={{color: 'red'}}>{error}</p>}
             <input type="text" placeholder="Name" onChange={e => setName(e.target.value)} required />
@@ -82,7 +96,8 @@ const AuthPage = ({ initialIsSignup = false, isAdmin = false }) => {
             {isAdmin && (
               <div className="overlay-panel overlay-right">
                 <h1>Admin Portal</h1>
-                <p>Please use your credentials to access the dashboard</p>
+                <p>Enter your personal details and start your journey with us</p>
+                <button className="ghost" onClick={() => setIsRightPanelActive(true)}>Sign Up</button>
               </div>
             )}
           </div>
